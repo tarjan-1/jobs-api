@@ -11,30 +11,24 @@ const register = async (req, res, next) => {
     res.status(statusCodes.CREATED).json({user: {name: user.getName()}, token});
 }
 
-const login = async (req, res, next) => {
-    const {email, password} = req.body;
-
-    if(!email || !password)
-    {
-        throw new BadRequestError('Please provide email and password');
+const login = async (req, res) => {
+    const { email, password } = req.body
+  
+    if (!email || !password) {
+      throw new BadRequestError('Please provide email and password')
     }
-
-    const user = User.findOne({email});
-    if(!user)
-    {
-        throw new UnauthenticatedError('Invalid credentials');
+    const user = await User.findOne({ email })
+    if (!user) {
+      throw new UnauthenticatedError('Invalid Credentials')
     }
-    
-    // compare passwords
-    const isPasswordCorrect = await user.comparePassword(password);
-    if(!isPasswordCorrect)
-    {
-        throw new UnauthenticatedError('Invalid Credentials');
+    const isPasswordCorrect = await user.comparePassword(password)
+    if (!isPasswordCorrect) {
+      throw new UnauthenticatedError('Invalid Credentials')
     }
-
-    const token = user.createJWT();
-    res.status(statusCodes.OK).json({user: {name: user.getName()}, token});
-}
+    // compare password
+    const token = user.createJWT()
+    res.status(statusCodes.OK).json({ user: { name: user.name }, token })
+  }
 
 module.exports = {
     register,
